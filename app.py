@@ -2,7 +2,8 @@ import streamlit as st
 from transformers import pipeline
 
 # Load sentiment analysis pipeline
-classifier = pipeline("sentiment-analysis")
+classifier = pipeline("text-classification", model="j-hartmann/emotion-english-distilroberta-base")
+
 
 # Streamlit UI
 st.set_page_config(page_title="Sentiment Analyzer")
