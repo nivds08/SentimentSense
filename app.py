@@ -1,6 +1,7 @@
 import streamlit as st
 from transformers import pipeline
 import requests
+import os
 from streamlit_lottie import st_lottie
 
 # Set page config
@@ -24,8 +25,16 @@ lottie_urls = {
     "neutral": "https://lottie.host/49f7921e-3b88-4638-8722-58c558bda00f/xmn9VPiJxz.json",
 }
 
-# Load emotion classification pipeline
-classifier = pipeline("text-classification", model="j-hartmann/emotion-english-distilroberta-base", return_all_scores=False)
+# Load HF token from Streamlit secrets (make sure you added it under "HF_TOKEN")
+hf_token = st.secrets["HF_TOKEN"]
+
+# Load emotion classification pipeline with token
+classifier = pipeline(
+    "text-classification",
+    model="j-hartmann/emotion-english-distilroberta-base",
+    use_auth_token=hf_token,
+    return_all_scores=False
+)
 
 # UI Styling
 st.markdown("""
