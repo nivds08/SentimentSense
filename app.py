@@ -178,5 +178,5 @@ if st.button("🎯 Detect Emotion"):
             else:
                 set_bg_color("#f6f9fc")  # default
 
-            else:
-                st.warning("🚨 Please enter some text to analyze.")
+    else:
+        st.warning("🚨 Please enter some text to analyze.")
