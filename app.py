@@ -1,20 +1,26 @@
 import streamlit as st
 from transformers import pipeline
+from huggingface_hub import login
 import requests
-import os
 from streamlit_lottie import st_lottie
 
-# Set page config
+# ----------------------------
+# Page Configuration
+# ----------------------------
 st.set_page_config(page_title="Emotion Detector", page_icon="💬", layout="wide")
 
+# ----------------------------
 # Function to load Lottie animations from URL
+# ----------------------------
 def load_lottie_url(url: str):
     r = requests.get(url)
     if r.status_code != 200:
         return None
     return r.json()
 
+# ----------------------------
 # Lottie animation URLs for each emotion
+# ----------------------------
 lottie_urls = {
     "joy": "https://lottie.host/5ddc3d2b-734f-43f2-ace4-e06d74a705d4/mRP6BlTKoD.json",
     "anger": "https://lottie.host/c127e6a2-381d-4a6f-bc5b-fb9c7be80341/wjHRqKwvxA.json",
@@ -25,18 +31,28 @@ lottie_urls = {
     "neutral": "https://lottie.host/49f7921e-3b88-4638-8722-58c558bda00f/xmn9VPiJxz.json",
 }
 
-# Load HF token from Streamlit secrets (make sure you added it under "HF_TOKEN")
-hf_token = st.secrets["HF_TOKEN"]
+# ----------------------------
+# Hugging Face Authentication (for private models)
+# ----------------------------
+# If your model is private, uncomment this:
+# login(token=st.secrets["HF_TOKEN"])
 
-# Load emotion classification pipeline with token
-classifier = pipeline(
-    "text-classification",
-    model="j-hartmann/emotion-english-distilroberta-base",
-    use_auth_token=hf_token,
-    return_all_scores=False
-)
+# ----------------------------
+# Load emotion classification pipeline
+# ----------------------------
+@st.cache_resource
+def load_classifier():
+    return pipeline(
+        "text-classification",
+        model="j-hartmann/emotion-english-distilroberta-base",
+        return_all_scores=False
+    )
 
+classifier = load_classifier()
+
+# ----------------------------
 # UI Styling
+# ----------------------------
 st.markdown("""
     <style>
         .reportview-container {
@@ -62,12 +78,16 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# ----------------------------
 # Title & Input
+# ----------------------------
 st.title("🎭 Emotion Detector")
 st.write("Describe how you're feeling, and let AI reveal the emotion behind your words.")
 user_input = st.text_area("Type your thoughts here:", height=150)
 
+# ----------------------------
 # Analyze Emotion
+# ----------------------------
 if st.button("🎯 Detect Emotion"):
     if user_input.strip() != "":
         with st.spinner("Analyzing your emotion..."):
