@@ -3,6 +3,7 @@ from transformers import pipeline
 from huggingface_hub import login
 import requests
 from streamlit_lottie import st_lottie
+import random
 
 # ----------------------------
 # Page Configuration
@@ -50,13 +51,10 @@ def load_classifier():
 classifier = load_classifier()
 
 # ----------------------------
-# UI Styling
+# UI Styling (Base)
 # ----------------------------
 st.markdown("""
     <style>
-        .reportview-container {
-            background-color: #f6f9fc;
-        }
         .stTextArea textarea {
             border-radius: 12px;
             padding: 10px;
@@ -76,6 +74,65 @@ st.markdown("""
         }
     </style>
 """, unsafe_allow_html=True)
+
+# ----------------------------
+# Helper functions
+# ----------------------------
+def set_bg_color(color):
+    """Smooth background color transition"""
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background-color: {color};
+            transition: background-color 1s ease;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+def show_emoji(emoji, animation_speed="2s", extra_css=""):
+    """Random corner bouncing emoji"""
+    start_corner = random.choice(["top-left", "top-right", "bottom-left", "bottom-right"])
+    corner_pos = {
+        "top-left": "top: 0; left: 0;",
+        "top-right": "top: 0; right: 0;",
+        "bottom-left": "bottom: 0; left: 0;",
+        "bottom-right": "bottom: 0; right: 0;",
+    }
+    st.markdown(
+        f"""
+        <style>
+        @keyframes bounce {{
+            0%   {{ transform: translate(0, 0); }}
+            50%  {{ transform: translate(50px, -50px); }}
+            100% {{ transform: translate(0, 0); }}
+        }}
+        .emoji {{
+            position: fixed;
+            font-size: 5rem;
+            {corner_pos[start_corner]}
+            animation: bounce {animation_speed} infinite;
+            z-index: 999;
+            {extra_css}
+        }}
+        </style>
+        <div class="emoji">{emoji}</div>
+        """,
+        unsafe_allow_html=True
+    )
+
+def load_lottie_url(url):
+    """Load a Lottie animation from URL"""
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+    return r.json()
+
+# Lottie animation URLs
+lottie_tears = "https://lottie.host/6e1e2ff2-b6f8-4a07-8c92-f0cb6af609d6/tears.json"
+lottie_lightning = "https://lottie.host/79d56c8b-2a54-4ffb-8c42-ef534c3ddda7/lightning.json"
 
 # ----------------------------
 # Title & Input
@@ -98,10 +155,27 @@ if st.button("🎯 Detect Emotion"):
             st.markdown(f"### 🧠 Emotion: `{label.title()}`")
             st.markdown(f"### 🔍 Confidence: `{score:.2f}`")
 
-            # Show corresponding Lottie animation
-            if label in lottie_urls:
-                lottie_json = load_lottie_url(lottie_urls[label])
-                if lottie_json:
-                    st_lottie(lottie_json, height=300, key=label)
+            # Effects based on emotion
+            if label == "happy":
+                set_bg_color("#FFFACD")  # light yellow
+                show_emoji("😊", "1.5s", "text-shadow: 0 0 20px yellow;")
+
+            elif label == "sad":
+                set_bg_color("#D3D3D3")  # grey
+                show_emoji("😢", "3s", "filter: drop-shadow(2px 4px 6px blue);")
+                tears_json = load_lottie_url(lottie_tears)
+                if tears_json:
+                    st_lottie(tears_json, height=200, key="sad_tears")
+
+            elif label == "angry":
+                set_bg_color("#FFD1D1")  # reddish
+                show_emoji("😡", "0.8s", "animation-timing-function: steps(4, end);")
+                lightning_json = load_lottie_url(lottie_lightning)
+                if lightning_json:
+                    st_lottie(lightning_json, height=250, key="angry_lightning")
+
+            else:
+                set_bg_color("#f6f9fc")  # default
+
     else:
         st.warning("🚨 Please enter some text to analyze.")
