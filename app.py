@@ -156,26 +156,27 @@ if st.button("🎯 Detect Emotion"):
             st.markdown(f"### 🔍 Confidence: `{score:.2f}`")
 
             # Effects based on emotion
-            if label == "happy":
+            if label == "joy":
                 set_bg_color("#FFFACD")  # light yellow
                 show_emoji("😊", "1.5s", "text-shadow: 0 0 20px yellow;")
 
-            elif label == "sad":
+            elif label == "sadness":
                 set_bg_color("#D3D3D3")  # grey
                 show_emoji("😢", "3s", "filter: drop-shadow(2px 4px 6px blue);")
                 tears_json = load_lottie_url(lottie_tears)
                 if tears_json:
                     st_lottie(tears_json, height=200, key="sad_tears")
 
-            elif label == "angry":
+            elif label == "anger":
                 set_bg_color("#FFD1D1")  # reddish
                 show_emoji("😡", "0.8s", "animation-timing-function: steps(4, end);")
                 lightning_json = load_lottie_url(lottie_lightning)
                 if lightning_json:
                     st_lottie(lightning_json, height=250, key="angry_lightning")
 
+
             else:
                 set_bg_color("#f6f9fc")  # default
 
-    else:
-        st.warning("🚨 Please enter some text to analyze.")
+            else:
+                st.warning("🚨 Please enter some text to analyze.")
