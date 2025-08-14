@@ -34,8 +34,7 @@ lottie_urls = {
 # ----------------------------
 # Hugging Face Authentication (for private models)
 # ----------------------------
-# If your model is private, uncomment this:
-# login(token=st.secrets["HF_TOKEN"])
+
 
 # ----------------------------
 # Load emotion classification pipeline
